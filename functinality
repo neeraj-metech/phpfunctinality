@@ -1,0 +1,87 @@
+Dawnload CSV file through Databas
+===============================================
+	#################First Method##############
+	// $qry = mysqli_query($conn,"SELECT * FROM categories");
+	// $data = '';
+	// while($row = mysqli_fetch_array($qry)) {
+	//   $data .= $row['id'].",".$row['name'].",".$row['description'].",".$row['created']."\n";
+	// }
+
+	// header('Content-Type: application/csv');
+	// header('Content-Disposition: attachment; filename="data.csv"');
+	// echo $data; 
+
+
+
+	#################Second Method##############
+	// $qry = mysqli_query($conn,"SELECT * FROM categories");
+	// $Row = array();
+	// while($row = mysqli_fetch_assoc($qry)) {
+	//   $Row[]=$row;
+	// }
+
+	// header("Content-type: application/csv");
+	// header("Content-Disposition: attachment; filename=test.csv");
+	//  $fp = fopen('php://output', 'w');
+	//  $header=array('id','name','description','created','modified');
+	// fputcsv($fp, $header);
+	//  foreach ($Row as $row2) {
+	//       fputcsv($fp, $row2);
+	//  }
+	// fclose($fp);
+
+
+Free NASA API
+============================================================
+
+	api headers
+	======================
+	header("Access-Control-Allow-Origin: *");
+	header("Content-Type: application/json; charset=UTF-8");
+	header("Access-Control-Allow-Methods: POST");
+	header("Access-Control-Max-Age: 3600");
+
+
+	$url ='https://api.nasa.gov/planetary/apod?concept_tags=True&api_key=NNKOjkoul8n1CH18TWA9gwngW1s1SmjESPjNoUFo';
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	$data = curl_exec($ch);
+	$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+	$result = json_decode($data);
+	<img src="<?php echo $result->url; ?>">
+
+
+
+Insert data in Database with CSV file
+=========================================================
+	if (isset($_POST["import"])) {
+		$csvMimes = array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain');
+		if(!empty($_FILES['file']['name']) && in_array($_FILES['file']['type'], $csvMimes)){
+
+			$fileName = $_FILES["file"]["tmp_name"];
+	    
+		    if ($_FILES["file"]["size"] > 0) {
+		        
+		        $file = fopen($fileName, "r");
+		        fgetcsv($file);
+		        
+		        while (($column = fgetcsv($file)) !== FALSE) {
+		            $sqlInsert = "INSERT into csv (name,description,created,modified) values ('" . $column[0] . "','" . $column[1] . "',NOW(),NOW())";
+		            $result = mysqli_query($conn, $sqlInsert);
+		            
+		            if (! empty($result)) {
+		                $type = "success";
+		                $message = "CSV Data Imported into the Database";
+		            } else {
+		                $type = "error";
+		                $message = "Problem in Importing CSV Data";
+		            }
+		        }
+		        fclose($file);
+		    }
+
+		}
+	}

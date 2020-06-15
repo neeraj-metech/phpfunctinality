@@ -85,3 +85,96 @@ Insert data in Database with CSV file
 
 		}
 	}
+	
+	
+
+Api xml Curl request
+===============================================
+function xmlrequestFun($id,$ssn,$dob){
+			include_once("includes/clsParseXML.php");
+			$response = array();
+			$xmlparse	= new ParseXML;
+			$content ='<?xml version="1.0" encoding="utf-8"?>
+		<VAPI>
+		<CREDENTIALS>
+		<VENDORID>videreid</VENDORID>
+		<USERNAME>USERNAMEGENERIC</USERNAME>
+		<PASSWORD>password</PASSWORD>
+		<PIN>pin</PIN>
+		<REFERENCENUMBER>'.rand(1000000000,9999999999).'</REFERENCENUMBER>
+		</CREDENTIALS>
+		<VOSS>
+		<GETENROLLMENTSTATUS>
+			<ENROLLMENTID>'.$enroll_id.'</ENROLLMENTID>
+			<LASTNAME></LASTNAME>
+			<DOB>'.$dob.'</DOB>
+			<SSN>'.$ssn.'</SSN>
+			<ORDER_STATUS></ORDER_STATUS>
+			<RECORDLIMT></RECORDLIMT>
+			<AGENTID>Devteam</AGENTID>
+			<AGENTPASSWORD></AGENTPASSWORD>
+			<SOURCE>website</SOURCE>
+		</GETENROLLMENTSTATUS>
+		</VOSS>
+		</VAPI>';
+		$endPoint = "https://url.com/data";
+		$headers = array("Content-Type: text/xml");
+		$curl = curl_init();
+		curl_setopt ($curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt ($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_TIMEOUT, 300);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_URL,$endPoint);
+		curl_setopt($curl, CURLOPT_POST, 1);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+		curl_setopt($curl, CURLOPT_VERBOSE, 0);
+		$content_plan	= curl_exec ($curl);
+		curl_error($curl);
+		curl_close ($curl);
+		$xml_plan		= $xmlparse->GetXMLTreeRAW($content_plan);
+		$response['statusCode'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['STATUSCODE'][0]['VALUE'];
+		$response['description'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['DESCRIPTION'][0]['VALUE'];
+		$response['errorDescription'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['ERRORDESCRIPTION'][0]['VALUE'];
+		$customerDetails = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'];
+		if($response['statusCode']=='00'){
+		$response['totalMatch'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['TOTALMATCHFOUND'][0]['VALUE'];
+			for($i=0;$i<count($customerDetails);$i++){
+				$response['customerInfoDetails'][$i]['custenrollid'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['CUSTENROLLID'][0]['VALUE'];
+				$response['customerInfoDetails'][$i]['last_name'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['LAST_NAME'][0]['VALUE'];
+				$response['customerInfoDetails'][$i]['nv_eligibility_check_status'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['NV_ELIGIBILITY_CHECK_STATUS'][0]['VALUE'];
+				$response['customerInfoDetails'][$i]['enrollment_status'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['ENROLLMENT_STATUS'][0]['VALUE'];
+				$response['customerInfoDetails'][$i]['massage'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['MASSAGE'][0]['VALUE'];
+			}
+		}
+		return $response;
+		}
+		
+		
+Rest API Curl request
+===============================================
+function callCurl($requestStr, $requestUrl) {
+    $clientIp = $_SERVER['REDIRECT_GEOIP_ADDR'];
+    $headers  = array (
+        'Content-Type:application/xml;',
+        "X-Forwarded-For:$clientIp"
+    );
+    $curl     = curl_init();
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 300);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($curl, CURLOPT_URL, $requestUrl);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $requestStr);
+    curl_setopt($curl, CURLOPT_VERBOSE, 0);
+    $content = curl_exec($curl);
+    curl_error($curl);
+    curl_close($curl);
+    return $content;
+    }
+
+

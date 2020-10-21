@@ -178,3 +178,13 @@ function callCurl($requestStr, $requestUrl) {
     }
 
 
+FOR UPLOADING CSV USING SQL QUERY
+#####################################################
+
+mysqli_options($con, MYSQLI_OPT_LOCAL_INFILE, true);
+$sql = "LOAD DATA LOCAL INFILE '$fileLocation' INTO TABLE $table_name FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 2 LINES (`pincode`,`pincode`, `has_cod`, `has_prepaid`, `has_reverse`, `shiprocket_delivery_zone`, `routing_code` ) ";
+mysqli_query($con, $sql);
+
+#####################################################
+
+

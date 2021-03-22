@@ -1,157 +1,314 @@
+#################### Store procedures ####################
+	// DROP PROCEDURE `getTab1`; CREATE DEFINER=`root`@`localhost` PROCEDURE `getTab1`(IN `type1` VARCHAR(20), IN `prefix1` VARCHAR(20), IN `suffix1` VARCHAR(20), IN `length1` INT, OUT `nextId1` VARCHAR(20)) NOT DETERMINISTIC NO SQL SQL SECURITY DEFINER SELECT amount INTO nextId1 from `tab1` where `type` = type1
+
+	$input1 = 'test';
+	$input2 = '';
+	$input3 = '';
+	$input4 = '';
+	/*
+	in mysqli_stmt_bind_param() ssss = type of inputs
+
+	i 	corresponding variable has type integer
+	d 	corresponding variable has type double
+	s 	corresponding variable has type string
+	b 	corresponding variable is a blob and will be sent in packets
+
+	*/
+
+	$call = mysqli_prepare($conn, 'CALL getTab1(?, ?, ?, ?, @myoutput)');
+	mysqli_stmt_bind_param($call, 'ssss', $input1, $input2, $input3, $input4);
+	mysqli_stmt_execute($call);
+	$select = mysqli_query($conn, 'SELECT @myoutput');
+	$result = mysqli_fetch_assoc($select);
+	$procOutput_sum     = $result['@myoutput'];
+#################### Store procedures ####################
+
+
+#################### Store Functions ####################
+	// DELIMITER $$
+	// DROP FUNCTION if EXISTS `myfunction` $$
+	// CREATE FUNCTION myfunction(user_id varchar(20)) RETURNS varchar(20)
+	// DETERMINISTIC
+	// BEGIN
+	// DECLARE xyz varchar(20);
+	// SELECT amount INTO xyz FROM tab1 where id=user_id;
+	// RETURN (xyz);
+	// END$$
+	// DELIMITER ;
+
+	$sql = 'SELECT *,myfunction(userid) as tab1_amount FROM tab2';
+	$query = mysqli_query($conn,$sql);
+	while ($rows = mysqli_fetch_assoc($query)) {
+		$data[] = $rows;
+	}
+	echo '<pre>';
+	print_r($data);
+#################### Store Functions ####################
+
+#################### TRANSACTION ####################
+		mysqli_query($conn,"BEGIN");
+		$sql = 'INSERT INTO tab1 set amount=150,type="new",code="new001" ';
+		$ins = mysqli_query($conn,$sql);
+
+		$sql2 = 'INSERT INTO tab1 set amount=200,type="new",code="new002" ';
+		$ins2 = mysqli_query($conn,$sql2);
+
+		if ($ins && $ins2 ) {
+			mysqli_query($conn,"COMMIT");
+			
+		}else{
+			mysqli_query($conn,"ROLLBACK");
+			echo 'rollback entry';
+		}
+	
+#################### TRANSACTION ####################
+
+
+#################### download CSV ####################
+		$sql = "SELECT 'Id', 'Amount', 'type', 'Code' UNION ALL SELECT id,amount,type,IFNULL(code,'N/A') FROM tab1 INTO OUTFILE 'C:/xampp/htdocs/employee_backup.csv' FIELDS ENCLOSED BY '' TERMINATED BY ',' ESCAPED BY '' LINES TERMINATED BY '\r\n' ";
+		mysqli_query($conn,$sql);
+#################### download CSV ####################
+
+
+FOR UPLOADING CSV USING SQL QUERY
+#####################################################
+
+mysqli_options($con, MYSQLI_OPT_LOCAL_INFILE, true);
+$sql = "LOAD DATA LOCAL INFILE '$fileLocation' INTO TABLE $table_name FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 2 LINES (`pincode`,`pincode`, `has_cod`, `has_prepaid`, `has_reverse`, `shiprocket_delivery_zone`, `routing_code` ,@Date) SET Date = STR_TO_DATE(@Date, '%m/%d/%Y')";
+
+mysqli_query($con, $sql);
+
+#####################################################
+
+
+Find fuction file or function line number
+#####################################################
+$reflFunc = new ReflectionFunction('sendEmails');
+print $reflFunc->getFileName() . ':' . $reflFunc->getStartLine();
+die;
+#####################################################
+
+
+Encryption and decryption function
+#####################################################
+function globSecurity($string, $action = 'e')
+{
+    // you may change these values to your own
+    $secret_key = '1965874tionind';
+    $secret_iv  = 'globina1311874';
+    
+    $output         = false;
+    $encrypt_method = "AES-256-CBC";
+    $key            = hash('sha256', $secret_key);
+    $iv             = substr(hash('sha256', $secret_iv), 0, 16);
+    
+    if ($action == 'e') {
+        $output = base64_encode(openssl_encrypt($string, $encrypt_method, $key, 0, $iv));
+    } else if ($action == 'd') {
+        $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+    }
+    return $output;
+}
+
+#####################################################
+
+Pagination in php
+#####################################################
+    $limit = 10;   
+    if (isset($page_num) && $page_num!='') {  
+      $page_no  = $page_num;  
+    }else {  
+      $page_no = 1;  
+    }
+    $start_from = ($page_no - 1) * $limit;   
+    $sql ="SELECT * FROM STSPL_google_shopping_competitive_pricing ORDER BY pricing_id DESC";
+    $sql2 .= $sql." LIMIT $start_from, $limit";
+    $query = mysqli_query($conn, $sql2);
+    $num   = mysqli_num_rows($query);
+    $query2 = mysqli_query($conn, $sql);
+    $total_records   = mysqli_num_rows($query2);
+
+    <ul class="pagination"> 
+      <?php
+        // $total_records = 3;
+        if ($total_records > 0) {
+            $total_pages = ceil($total_records / $limit); 
+            $k = (($page_no+4>$total_pages)?$total_pages-4:(($page_no-4<1)?5:$page_no));         
+            $pagLink = ""; 
+            if($page_no>=2){ 
+                echo "<li><a href='/google_add_price_compare/1'> << </a></li>"; 
+                echo "<li><a href='/google_add_price_compare/".($page_no-1)."'> < </a></li>"; 
+            } 
+            for ($i=-4; $i<=4; $i++) { 
+              if($k+$i==$page_no) 
+                $pagLink .= "<li class='active'><a href='/google_add_price_compare/".($k+$i)."'>".($k+$i)."</a></li>"; 
+              else
+                $pagLink .= "<li><a href='/google_add_price_compare/".($k+$i)."'>".($k+$i)."</a></li>";   
+            };   
+            echo $pagLink; 
+            if($page_no<$total_pages){ 
+                echo "<li><a href='/google_add_price_compare/".($page_no+1)."'> > </a></li>"; 
+                echo "<li><a href='/google_add_price_compare/".$total_pages."'> >> </a></li>"; 
+            } 
+        }    
+      ?> 
+      </ul>
+#####################################################
+
 Dawnload CSV file through Databas
 ===============================================
-	#################First Method##############
-	// $qry = mysqli_query($conn,"SELECT * FROM categories");
-	// $data = '';
-	// while($row = mysqli_fetch_array($qry)) {
-	//   $data .= $row['id'].",".$row['name'].",".$row['description'].",".$row['created']."\n";
-	// }
+    #################First Method##############
+    // $qry = mysqli_query($conn,"SELECT * FROM categories");
+    // $data = '';
+    // while($row = mysqli_fetch_array($qry)) {
+    //   $data .= $row['id'].",".$row['name'].",".$row['description'].",".$row['created']."\n";
+    // }
 
-	// header('Content-Type: application/csv');
-	// header('Content-Disposition: attachment; filename="data.csv"');
-	// echo $data; 
+    // header('Content-Type: application/csv');
+    // header('Content-Disposition: attachment; filename="data.csv"');
+    // echo $data; 
 
 
 
-	#################Second Method##############
-	// $qry = mysqli_query($conn,"SELECT * FROM categories");
-	// $Row = array();
-	// while($row = mysqli_fetch_assoc($qry)) {
-	//   $Row[]=$row;
-	// }
+    #################Second Method##############
+    // $qry = mysqli_query($conn,"SELECT * FROM categories");
+    // $Row = array();
+    // while($row = mysqli_fetch_assoc($qry)) {
+    //   $Row[]=$row;
+    // }
 
-	// header("Content-type: application/csv");
-	// header("Content-Disposition: attachment; filename=test.csv");
-	//  $fp = fopen('php://output', 'w');
-	//  $header=array('id','name','description','created','modified');
-	// fputcsv($fp, $header);
-	//  foreach ($Row as $row2) {
-	//       fputcsv($fp, $row2);
-	//  }
-	// fclose($fp);
+    // header("Content-type: application/csv");
+    // header("Content-Disposition: attachment; filename=test.csv");
+    //  $fp = fopen('php://output', 'w');
+    //  $header=array('id','name','description','created','modified');
+    // fputcsv($fp, $header);
+    //  foreach ($Row as $row2) {
+    //       fputcsv($fp, $row2);
+    //  }
+    // fclose($fp);
 
 
 Free NASA API
 ============================================================
 
-	api headers
-	======================
-	header("Access-Control-Allow-Origin: *");
-	header("Content-Type: application/json; charset=UTF-8");
-	header("Access-Control-Allow-Methods: POST");
-	header("Access-Control-Max-Age: 3600");
+    api headers
+    ======================
+    header("Access-Control-Allow-Origin: *");
+    header("Content-Type: application/json; charset=UTF-8");
+    header("Access-Control-Allow-Methods: POST");
+    header("Access-Control-Max-Age: 3600");
 
 
-	$url ='https://api.nasa.gov/planetary/apod?concept_tags=True&api_key=NNKOjkoul8n1CH18TWA9gwngW1s1SmjESPjNoUFo';
-	$ch = curl_init($url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	$data = curl_exec($ch);
-	$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	curl_close($ch);
-	$result = json_decode($data);
-	<img src="<?php echo $result->url; ?>">
+    $url ='https://api.nasa.gov/planetary/apod?concept_tags=True&api_key=NNKOjkoul8n1CH18TWA9gwngW1s1SmjESPjNoUFo';
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $data = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $result = json_decode($data);
+    <img src="<?php echo $result->url; ?>">
 
 
 
 Insert data in Database with CSV file
 =========================================================
-	if (isset($_POST["import"])) {
-		$csvMimes = array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain');
-		if(!empty($_FILES['file']['name']) && in_array($_FILES['file']['type'], $csvMimes)){
+    if (isset($_POST["import"])) {
+        $csvMimes = array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain');
+        if(!empty($_FILES['file']['name']) && in_array($_FILES['file']['type'], $csvMimes)){
 
-			$fileName = $_FILES["file"]["tmp_name"];
-	    
-		    if ($_FILES["file"]["size"] > 0) {
-		        
-		        $file = fopen($fileName, "r");
-		        fgetcsv($file);
-		        
-		        while (($column = fgetcsv($file)) !== FALSE) {
-		            $sqlInsert = "INSERT into csv (name,description,created,modified) values ('" . $column[0] . "','" . $column[1] . "',NOW(),NOW())";
-		            $result = mysqli_query($conn, $sqlInsert);
-		            
-		            if (! empty($result)) {
-		                $type = "success";
-		                $message = "CSV Data Imported into the Database";
-		            } else {
-		                $type = "error";
-		                $message = "Problem in Importing CSV Data";
-		            }
-		        }
-		        fclose($file);
-		    }
+            $fileName = $_FILES["file"]["tmp_name"];
+        
+            if ($_FILES["file"]["size"] > 0) {
+                
+                $file = fopen($fileName, "r");
+                fgetcsv($file);
+                
+                while (($column = fgetcsv($file)) !== FALSE) {
+                    $sqlInsert = "INSERT into csv (name,description,created,modified) values ('" . $column[0] . "','" . $column[1] . "',NOW(),NOW())";
+                    $result = mysqli_query($conn, $sqlInsert);
+                    
+                    if (! empty($result)) {
+                        $type = "success";
+                        $message = "CSV Data Imported into the Database";
+                    } else {
+                        $type = "error";
+                        $message = "Problem in Importing CSV Data";
+                    }
+                }
+                fclose($file);
+            }
 
-		}
-	}
-	
-	
+        }
+    }
+    
+    
 
 Api xml Curl request
 ===============================================
 function xmlrequestFun($id,$ssn,$dob){
-			include_once("includes/clsParseXML.php");
-			$response = array();
-			$xmlparse	= new ParseXML;
-			$content ='<?xml version="1.0" encoding="utf-8"?>
-		<VAPI>
-		<CREDENTIALS>
-		<VENDORID>videreid</VENDORID>
-		<USERNAME>USERNAMEGENERIC</USERNAME>
-		<PASSWORD>password</PASSWORD>
-		<PIN>pin</PIN>
-		<REFERENCENUMBER>'.rand(1000000000,9999999999).'</REFERENCENUMBER>
-		</CREDENTIALS>
-		<VOSS>
-		<GETENROLLMENTSTATUS>
-			<ENROLLMENTID>'.$enroll_id.'</ENROLLMENTID>
-			<LASTNAME></LASTNAME>
-			<DOB>'.$dob.'</DOB>
-			<SSN>'.$ssn.'</SSN>
-			<ORDER_STATUS></ORDER_STATUS>
-			<RECORDLIMT></RECORDLIMT>
-			<AGENTID>Devteam</AGENTID>
-			<AGENTPASSWORD></AGENTPASSWORD>
-			<SOURCE>website</SOURCE>
-		</GETENROLLMENTSTATUS>
-		</VOSS>
-		</VAPI>';
-		$endPoint = "https://url.com/data";
-		$headers = array("Content-Type: text/xml");
-		$curl = curl_init();
-		curl_setopt ($curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt ($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_TIMEOUT, 300);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-		curl_setopt($curl, CURLOPT_URL,$endPoint);
-		curl_setopt($curl, CURLOPT_POST, 1);
-		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
-		curl_setopt($curl, CURLOPT_VERBOSE, 0);
-		$content_plan	= curl_exec ($curl);
-		curl_error($curl);
-		curl_close ($curl);
-		$xml_plan		= $xmlparse->GetXMLTreeRAW($content_plan);
-		$response['statusCode'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['STATUSCODE'][0]['VALUE'];
-		$response['description'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['DESCRIPTION'][0]['VALUE'];
-		$response['errorDescription'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['ERRORDESCRIPTION'][0]['VALUE'];
-		$customerDetails = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'];
-		if($response['statusCode']=='00'){
-		$response['totalMatch'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['TOTALMATCHFOUND'][0]['VALUE'];
-			for($i=0;$i<count($customerDetails);$i++){
-				$response['customerInfoDetails'][$i]['custenrollid'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['CUSTENROLLID'][0]['VALUE'];
-				$response['customerInfoDetails'][$i]['last_name'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['LAST_NAME'][0]['VALUE'];
-				$response['customerInfoDetails'][$i]['nv_eligibility_check_status'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['NV_ELIGIBILITY_CHECK_STATUS'][0]['VALUE'];
-				$response['customerInfoDetails'][$i]['enrollment_status'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['ENROLLMENT_STATUS'][0]['VALUE'];
-				$response['customerInfoDetails'][$i]['massage'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['MASSAGE'][0]['VALUE'];
-			}
-		}
-		return $response;
-		}
-		
-		
+            include_once("includes/clsParseXML.php");
+            $response = array();
+            $xmlparse   = new ParseXML;
+            $content ='<?xml version="1.0" encoding="utf-8"?>
+        <VAPI>
+        <CREDENTIALS>
+        <VENDORID>videreid</VENDORID>
+        <USERNAME>USERNAMEGENERIC</USERNAME>
+        <PASSWORD>password</PASSWORD>
+        <PIN>pin</PIN>
+        <REFERENCENUMBER>'.rand(1000000000,9999999999).'</REFERENCENUMBER>
+        </CREDENTIALS>
+        <VOSS>
+        <GETENROLLMENTSTATUS>
+            <ENROLLMENTID>'.$enroll_id.'</ENROLLMENTID>
+            <LASTNAME></LASTNAME>
+            <DOB>'.$dob.'</DOB>
+            <SSN>'.$ssn.'</SSN>
+            <ORDER_STATUS></ORDER_STATUS>
+            <RECORDLIMT></RECORDLIMT>
+            <AGENTID>Devteam</AGENTID>
+            <AGENTPASSWORD></AGENTPASSWORD>
+            <SOURCE>website</SOURCE>
+        </GETENROLLMENTSTATUS>
+        </VOSS>
+        </VAPI>';
+        $endPoint = "https://url.com/data";
+        $headers = array("Content-Type: text/xml");
+        $curl = curl_init();
+        curl_setopt ($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt ($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 300);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_URL,$endPoint);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+        curl_setopt($curl, CURLOPT_VERBOSE, 0);
+        $content_plan   = curl_exec ($curl);
+        curl_error($curl);
+        curl_close ($curl);
+        $xml_plan       = $xmlparse->GetXMLTreeRAW($content_plan);
+        $response['statusCode'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['STATUSCODE'][0]['VALUE'];
+        $response['description'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['DESCRIPTION'][0]['VALUE'];
+        $response['errorDescription'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['ERRORDESCRIPTION'][0]['VALUE'];
+        $customerDetails = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'];
+        if($response['statusCode']=='00'){
+        $response['totalMatch'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['TOTALMATCHFOUND'][0]['VALUE'];
+            for($i=0;$i<count($customerDetails);$i++){
+                $response['customerInfoDetails'][$i]['custenrollid'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['CUSTENROLLID'][0]['VALUE'];
+                $response['customerInfoDetails'][$i]['last_name'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['LAST_NAME'][0]['VALUE'];
+                $response['customerInfoDetails'][$i]['nv_eligibility_check_status'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['NV_ELIGIBILITY_CHECK_STATUS'][0]['VALUE'];
+                $response['customerInfoDetails'][$i]['enrollment_status'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['ENROLLMENT_STATUS'][0]['VALUE'];
+                $response['customerInfoDetails'][$i]['massage'] = $xml_plan['VAPI'][0]['GETENROLLMENTSTATUS'][0]['CUSTOMERDETAIL'][$i]['MASSAGE'][0]['VALUE'];
+            }
+        }
+        return $response;
+        }
+        
+        
 Rest API Curl request
 ===============================================
 function callCurl($requestStr, $requestUrl) {
@@ -186,5 +343,3 @@ $sql = "LOAD DATA LOCAL INFILE '$fileLocation' INTO TABLE $table_name FIELDS TER
 mysqli_query($con, $sql);
 
 #####################################################
-
-

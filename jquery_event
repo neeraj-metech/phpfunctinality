@@ -1,8 +1,8 @@
 jQuery Timer
-=========================
+#####################################################
 $(document).ready(
 function(){
-	var timer11  = '05:01';
+    var timer11  = '05:01';
 
 var timer2 = timer11;
 var interval = setInterval(function() {
@@ -25,3 +25,158 @@ var interval = setInterval(function() {
 
 
 });
+
+
+FIND USER GEOLOCATION COORDINATES USING JAVASCRIPT
+#####################################################
+<button onClick="getLocation()">Try It</button>
+<p id="demo"></p>
+<iframe id="locationMap" width="100%" height="500" src=""></iframe>
+
+<script>
+	var x = document.getElementById("demo");
+	function getLocation(){
+		
+		if(navigator.geolocation){
+			navigator.geolocation.getCurrentPosition(showPosition);
+		}else{
+
+			x.innerHTML = "Geolocation is not supported by this browser";
+		}
+	}
+	function showPosition(position){
+		var link = 'https://maps.google.com/maps?q='+position.coords.latitude+','+position.coords.longitude+'&output=embed';
+		document.getElementById("locationMap").src=link;
+		document.getElementById("demo").innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
+	}
+</script>
+
+#####################################################
+
+lazyloader
+#####################################################
+	var load_page = 3;
+	jQuery(window).scroll(function () {
+	    if (jQuery(window).scrollTop() == jQuery(document).height() - jQuery(window).height()) {
+	        postLoadMore(load_page);
+	    }
+	});
+
+	jQuery(document).ready(function () {
+	    jQuery('.loadMore').click(function () {
+	        postLoadMore(load_page);
+	    });
+	});
+
+	function postLoadMore(page) {
+	    jQuery.ajax({
+	        type: "POST",
+	        url: '/ajax.php',
+	        data: 'action=postloadmore&paged=' + page,
+	        success: function (obj) {
+	            jQuery('#psotDiv').append(obj);
+	            load_page += 1;
+	        }
+	    });
+	}
+#####################################################
+
+numeric or non-numeric jquery validation
+####################################################
+$(document).on('keyup blur', '.allowOnlyNumeric', function (event) {
+        var node = $(this);
+        node.val(node.val().replace(/[^0-9]/g, ''));
+    });
+    $('.allowOnlyNumeric').bind('input propertychange', function () {
+        var node = $(this);
+        node.val(node.val().replace(/[^0-9]/g, ''));
+    });
+    $(document).on('keyup blur', '.allowOnlyAlphabets', function (event) {
+        var node = $(this);
+        node.val(node.val().replace(/[^a-zA-Z ]/g, ''));
+    });
+    $('.allowOnlyAlphabets').bind('input propertychange', function () {
+        var node = $(this);
+        node.val(node.val().replace(/[^a-zA-Z ]/g, ''));
+    });
+    $(document).on('keyup blur', '.allowAlphaNumeric', function (event) {
+        var node = $(this);
+        node.val(node.val().replace(/[^a-zA-Z0-9]/g, ''));
+    });
+    $('.allowAlphaNumeric').bind('input propertychange', function () {
+        var node = $(this);
+        node.val(node.val().replace(/[^a-zA-Z0-9]/g, ''));
+    });
+    $(document).on('keyup blur', '.allowOnlyNumericSpace', function (event) {
+        var node = $(this);
+        node.val(node.val().replace(/[^0-9 ]/g, ''));
+    });
+    $('.allowOnlyNumericSpace').bind('input propertychange', function () {
+        var node = $(this);
+        node.val(node.val().replace(/[^0-9 ]/g, ''));
+    });
+    $(document).on('keyup blur', '.allowAlphaNumericSpace', function (event) {
+        var node = $(this);
+        node.val(node.val().replace(/[^a-zA-Z0-9 ]/g, ''));
+    });
+    $('.allowAlphaNumericSpace').bind('input propertychange', function () {
+        var node = $(this);
+        node.val(node.val().replace(/[^a-zA-Z0-9 ]/g, ''));
+    });
+    $(document).on('keyup blur', '.allowNumericFloat', function (event) {
+        var node = $(this);
+        node.val(node.val().replace(/[^0-9\.]/g, ''));
+    });
+    $('.allowNumericFloat').bind('input propertychange', function () {
+        var node = $(this);
+        node.val(node.val().replace(/[^0-9\.]/g, ''));
+    });
+    $(document).on('keyup blur', '.allowNumericAmount', function (event) {
+        var node = $(this);
+        //  node.val(node.val().replace(/[^0-9\s.]+|\.(?!\d)/g, ''));
+        node.val(node.val().replace(/[^0-9\.]/g, ''));
+    });
+    jQuery(document).on('keyup blur', '.removeDouble', function (event) {
+        var node = $(this);
+        var string = node.val();
+        var characters = jQuery(this).data('doubleCharacters');
+        var charactersArr = characters.split('::');
+        $.each(charactersArr, function (key, value) {
+            var stringToGoIntoTheRegex = '[' + value + ']+';
+            var regex = new RegExp(stringToGoIntoTheRegex, "g");
+            string = string.replace(regex, value);
+        });
+        node.val(string);
+    });
+    $(document).on('blur', '.validateFloat', function (event) {
+        var value = $(this).val();
+        var valid = (value.match(/^-?\d*(\.\d+)?$/))
+        if (!valid) {
+            $(this).val(0);
+        }
+    });
+    $(document).on('keyup blur', '.makeAlphabetsCapital', function (event) {
+        this.value = this.value.toUpperCase();
+    });
+    $(document).on('keyup blur', '.removeChars', function (event) {
+        var node = $(this);
+        var stringToGoIntoTheRegex = $(this).data('regex');
+        var regex = new RegExp(stringToGoIntoTheRegex, "g");
+        node.val(node.val().replace(regex, ''));
+    });
+    $('.removeChars').bind('input propertychange', function () {
+        var node = $(this);
+        var stringToGoIntoTheRegex = $(this).data('regex');
+        var regex = new RegExp(stringToGoIntoTheRegex, "g");
+        node.val(node.val().replace(regex, ''));
+    });
+    $(document).on('blur', '.validateEmail', function (event) {
+        var userinput = $(this).val();
+        if (userinput != '') {
+            var pattern = /^\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b$/i
+            if (!pattern.test(userinput)) {
+                alert('not a valid e-mail address');
+            }
+        }
+    });
+  ################################################

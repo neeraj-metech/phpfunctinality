@@ -153,6 +153,50 @@ Pagination in php
         }    
       ?> 
       </ul>
+      
+      second ul
+      ===================
+      <ul class="pagination"> 
+  <?php
+    if ($total_records > 0) {
+        $total_pages = ceil($total_records / $limit); 
+        if ($page_no >= 7) {
+	        $start_loop = $page_no - 3;
+	        if ($total_pages > $page_no + 3)
+	            $end_loop   = $page_no + 3;
+	        else if ($page_no <= $total_pages && $page_no > $total_pages - 6) {
+	            $start_loop = $total_pages - 6;
+	            $end_loop   = $total_pages;
+	        } else {
+	            $end_loop = $total_pages;
+	        }
+	    } else {
+	        $start_loop = 1;
+	        if ($total_pages > 7)
+	            $end_loop   = 7;
+	        else
+	            $end_loop   = $total_pages;
+	    }
+
+        $pagLink = ""; 
+        if($page_no>=2){ 
+            echo "<li><a href='/testing/index.php?page_num=1'> << </a></li>"; 
+            echo "<li><a href='/testing/index.php?page_num=".($page_no-1)."'> < </a></li>"; 
+        } 
+        for ($i=$start_loop; $i<=$end_loop; $i++) { 
+          if($i==$page_no) 
+            $pagLink .= "<li class='active'><a href='/testing/index.php?page_num=".($i)."'>".($i)."</a></li>"; 
+          else
+            $pagLink .= "<li><a href='/testing/index.php?page_num=".($i)."'>".($i)."</a></li>";   
+        };   
+        echo $pagLink; 
+        if($page_no<$total_pages){ 
+            echo "<li><a href='/testing/index.php?page_num=".($page_no+1)."'> > </a></li>"; 
+            echo "<li><a href='/testing/index.php?page_num=".$total_pages."'> >> </a></li>"; 
+        } 
+    }    
+  ?> 
+  </ul>
 #####################################################
 
 Dawnload CSV file through Databas

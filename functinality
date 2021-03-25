@@ -408,3 +408,36 @@ function display_children($parent_cat_id, $level=0) {
 }
 echo display_children(0);
 #####################################################
+
+
+#####################################################
+function convertDataInBytes($data,$dataUnit)
+	{   
+	    if($dataUnit=='KB')
+	    {
+	        $data=$data*1024;
+	    } else if($dataUnit=='MB')
+	    {
+	        $data=$data*1024*1024;
+	    } else if($dataUnit=='GB')
+	    {
+	        $data=$data*1024*1024*1024;
+	    } else if($dataUnit=='TB')
+	    {
+	        $data=$data*1024*1024*1024*1024;
+	    } 
+	  return $data;     
+	}
+}
+
+if (!function_exists('sizeFilter')) {
+	function sizeFilter($bytes, $roundDigit = 2) {
+	    $bytes /= 1048576;
+	    $label = array('MB', 'GB', 'TB', 'PB');
+	    for ($i = 0; $bytes >= 1024 && $i < ( count($label) - 1 ); $bytes /= 1024, $i++)
+	        ;
+	    return( round($bytes, $roundDigit) . " " . $label[$i] );
+	}
+}
+
+#####################################################

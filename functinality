@@ -387,3 +387,24 @@ $sql = "LOAD DATA LOCAL INFILE '$fileLocation' INTO TABLE $table_name FIELDS TER
 mysqli_query($con, $sql);
 
 #####################################################
+
+
+Multi-lavel dynamic menus
+#####################################################
+function display_children($parent_cat_id, $level=0) {
+  global $conn;
+    $result = mysqli_query($conn,"SELECT a.id, a.name, Deriv1.Count FROM `categories` a  LEFT OUTER JOIN (SELECT parent_cat_id, COUNT(*) AS Count FROM `categories` GROUP BY parent_cat_id) Deriv1 ON a.id = Deriv1.parent_cat_id WHERE a.parent_cat_id=" . $parent_cat_id);
+    echo "<ul>";
+    while ($row = mysqli_fetch_assoc($result)) {
+        if ($row['Count'] > 0) {
+            echo "<li><a href='" . $row['id'] . "'>" . $row['name'] . "</a>";
+      display_children($row['id'], $level + 1);
+      echo "</li>";
+        } elseif ($row['Count']==0) {
+            echo "<li><a href='" . $row['id'] . "'>" . $row['name'] . "</a></li>";
+        } else;
+    }
+    echo "</ul>";
+}
+echo display_children(0);
+#####################################################
